@@ -1,15 +1,10 @@
-const covenantName = 'app-account-control'
+const actionPrefix = 'app-account-control'
 
 const actionTypes = {
-  PRIVATE_CHAIN_COVENANT: `${covenantName}/PRIVATE_CHAIN_COVENANT`
+  ADD_KEY_TO_SPONSORED_CHAIN: `${actionPrefix}/ADD_KEY_TO_SPONSORED_CHAIN`
 }
 
-const actionCreators = {
-  privateChainCovenant: ({ chainAlias, covenantHash }) => ({
-    type: actionTypes.PRIVATE_CHAIN_COVENANT,
-    payload: { chainAlias, covenantHash }
-  })
-}
+const actionCreators = {}
 
 module.exports = {
   actionTypes,

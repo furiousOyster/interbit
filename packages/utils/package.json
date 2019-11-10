@@ -1,21 +1,35 @@
 {
   "name": "utils",
-  "version": "0.4.11",
+  "version": "0.4.53",
   "description": "",
   "private": true,
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/packagePolice.js",
-    "test": "mocha src/tests/*",
-    "distribute:template": "node src/scripts/distributeTemplate.js"
+    "test": "jest",
+    "distribute:template": "node src/scripts/distributeTemplate.js",
+    "coverage": "node src/scripts/generateCoverageReport.js"
   },
   "author": "BTL GROUP LTD",
   "license": "MIT",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "fs-extra": "^5.0.0",
     "glob": "^7.1.2"
   },
   "devDependencies": {
-    "mocha": "^4.0.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "jest": "20.0.4",
     "nodemon": "^1.14.12"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

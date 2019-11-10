@@ -1,55 +1,24 @@
 @import 'variables';
 
-.App {
-
-  .Account-sidebar {
-    margin-top: 10px;
-    padding: 0;
-    background-color: $white;
-    h4 {
-      margin: 15px;
-      font-weight: 900;
-      @media (max-width: $screen-sm - 1) {
-        margin-top: 0px;
-      }
-    }
-    .nav > li > a {
-      border-radius: 2px;
-      font-weight: 700;
-      font-size: 16px;
-      padding: 8px 15px;
-      &:hover {
-        color: $dark-gray;
-        background-color: transparent;
-      }
-    }
-    .nav-pills>li.active>a,
-    .nav-pills>li.active>a:focus,
-    .nav-pills>li.active>a:hover {
-      background-color: $light-gray;
-      color: $dark-gray;
-    }
-  }
-
-  .Update {
-    width: 130px;
-    @media (max-width: $screen-sm - 1) {
-      padding: 8px 20px;
-      width: 100%;
-    }
-  }
-
-  .My-providers {
-    th {
-      color: $dark-gray;
-    }
-    .Manage-provider > span.glyphicon:hover {
-      color: $dark-gray;
-    }
-  }
-}
-
 .ibweb.app-account {
+  .ibweb-page.home {
+    .header {
+      margin-top: -17px;
+
+      @media (max-width: $screen-sm - 1) {
+        margin-top: 0;
+      }
+    }
+  }
+
+  .ibweb-page.create-account {
+    .ibweb-content-bar.github {
+      .error {
+        color: $ib-red;
+      }
+    }
+  }
+
   .ibweb-navbar {
     .ibweb-ib-icon {
       padding: 18px 0;
@@ -87,6 +56,13 @@
     .control-label {
       text-transform: capitalize;
     }
+
+    @media (max-width: $screen-sm - 1) {
+      .btn {
+        margin-bottom: 16px;
+        width: 200px;
+      }
+    }
   }
 
   .account-edit-button {
@@ -103,7 +79,7 @@
     &.active:hover,
     &.active:focus,
     &.active.focus {
-      background: #FFF;
+      background: #fff;
       outline: 0;
       -webkit-box-shadow: none;
       box-shadow: none;
@@ -112,8 +88,9 @@
 
   .app-auth {
     img {
-      max-width: 100%;
-      margin-bottom: 64px;
+      display: block;
+      margin: 64px auto;
+      max-width: 80%;
     }
 
     h3 {
@@ -131,7 +108,7 @@
       td {
         padding: 20px 16px;
         color: #666;
-        border-color: #e6e6e6;
+        border-color: $ib-grid-med-grey;
       }
 
       td:first-child {
@@ -148,7 +125,7 @@
       }
 
       tr:last-child td {
-        border-bottom: 1px solid #e6e6e6;
+        border-bottom: 1px solid $ib-grid-med-grey;
       }
 
       .form-td {
@@ -175,31 +152,39 @@
     .text-btn-container {
       text-align: center;
     }
-  }
-}
 
+    @media (max-width: $screen-sm - 1) {
+      .btn-container {
+        text-align: center;
+        margin-bottom: 16px;
 
-.ibweb.app-account {
-  .ibweb-page.home {
-    .header {
-      margin-top: -65px;
-    }
-  }
-
-  .ibweb-page.create-account {
-    .ibweb-content-bar.github {
-      .error {
-        color: #d0021b;
+        .btn {
+          width: 200px;
+          margin-bottom: 8px;
+        }
       }
     }
   }
 }
 
-
 .ibweb-modal-wrapper.modal-sign-in {
+  .modal-header {
+    h2 span {
+      word-break: break-all;
+    }
+  }
+
   .modal-footer {
     .text-button:last-child {
       float: right;
+    }
+  }
+
+  @media (max-width: $screen-sm - 1) {
+    .modal-header {
+      h2 {
+        margin-bottom: 0;
+      }
     }
   }
 }
@@ -224,6 +209,26 @@
 
     .ibweb-button {
       margin-top: 32px;
+    }
+  }
+}
+
+.ibweb-modal-wrapper.modal-attention-more-info {
+  .modal-header {
+    h2 {
+      margin-bottom: 0;
+    }
+  }
+
+  .modal-body {
+    padding-bottom: 16px;
+  }
+
+  .modal-footer {
+    padding-bottom: 16px;
+
+    .checkbox {
+      margin-bottom: 32px;
     }
   }
 }

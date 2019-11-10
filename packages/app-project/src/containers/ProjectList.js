@@ -4,18 +4,19 @@ import { Grid, Row, Col, Button } from 'react-bootstrap'
 import { LinkContainer } from 'react-router-bootstrap'
 import PropTypes from 'prop-types'
 import queryString from 'query-string'
-import { selectors } from 'interbit-middleware'
-import { LinkBar, LinkBarSlack } from 'lib-react-interbit'
+import { interbitRedux } from 'interbit-ui-tools'
+import { LinkBar } from 'interbit-ui-components'
 
-import urls from '../constants/urls'
+import { PRIVATE } from '../constants/chainAliases'
 import ProjectItem from '../components/ProjectItem'
 import ProjectBar from '../components/ProjectBar'
 
-import { getExploreChainState } from '../redux/exploreChainReducer'
-import chairmanmeow from '../assets/chairmanmeow.jpg'
+import placeholder from '../assets/placeholder.svg'
+
+const { selectors } = interbitRedux
 
 const mapStateToProps = state => {
-  const { state: chainState } = getExploreChainState(state)
+  const chainState = selectors.getChain(state, { chainAlias: PRIVATE })
   if (!chainState) {
     return {
       projects: []
@@ -41,7 +42,7 @@ const mapStateToProps = state => {
 }
 
 const generateConnectUrl = state => {
-  const { state: chainState } = getExploreChainState(state)
+  const chainState = selectors.getChain(state, { chainAlias: PRIVATE })
   if (!chainState || !chainState.dns) {
     return '#'
   }
@@ -126,26 +127,26 @@ export class ProjectList extends Component {
               <LinkBar
                 title="Create a New Project"
                 content="Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-                image={chairmanmeow}
+                image={placeholder}
                 to="/new-project"
                 className="dotted"
               />
               <ProjectBar
                 name="Project name"
-                image={chairmanmeow}
+                image={placeholder}
                 isDeployed
                 launchUrl="#"
               />
               <ProjectBar
                 name="Project name"
-                image={chairmanmeow}
+                image={placeholder}
                 isDeployed
                 isPassing
                 launchUrl="#"
               />
               <ProjectBar
                 name="Project name"
-                image={chairmanmeow}
+                image={placeholder}
                 isDeployed={false}
                 launchUrl="#"
               />
@@ -154,15 +155,10 @@ export class ProjectList extends Component {
                 <ProjectBar
                   key={project.projectAlias}
                   name={project.name}
-                  image={chairmanmeow}
+                  image={placeholder}
                   launchUrl={project.launchUrl}
                 />
               ))}
-            </Col>
-          </Row>
-          <Row>
-            <Col {...colLayout}>
-              <LinkBarSlack to={urls.SUPPORT_SLACK} />
             </Col>
           </Row>
         </div>

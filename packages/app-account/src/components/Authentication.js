@@ -1,15 +1,12 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { ContentBar, Divider } from 'lib-react-interbit'
+import { ContentBar, Divider } from 'interbit-ui-components'
 
 import OAuthButton from './OAuthButton'
 
 export default class Authentication extends Component {
   static propTypes = {
-    // eslint-disable-next-line
-    oAuthConfig: PropTypes.object,
-    blockchainDispatch: PropTypes.func,
-    sponsorChainDispatch: PropTypes.func,
+    oAuth: PropTypes.shape({}),
     title: PropTypes.string.isRequired,
     image: PropTypes.string.isRequired,
     buttonText: PropTypes.string,
@@ -18,9 +15,7 @@ export default class Authentication extends Component {
   }
 
   static defaultProps = {
-    oAuthConfig: {},
-    blockchainDispatch: () => {},
-    sponsorChainDispatch: () => {},
+    oAuth: {},
     buttonText: '',
     content: ''
     // error: ''
@@ -28,9 +23,7 @@ export default class Authentication extends Component {
 
   render() {
     const {
-      oAuthConfig,
-      blockchainDispatch,
-      sponsorChainDispatch,
+      oAuth,
       title,
       image,
       buttonText,
@@ -39,25 +32,17 @@ export default class Authentication extends Component {
     } = this.props
 
     return (
-      <div>
-        <ContentBar image={image} className="image-sm github" title={title}>
-          <p>{content}</p>
+      <ContentBar image={image} className="image-sm github" title={title}>
+        <p>{content}</p>
 
-          {/* TODO: only show error message if github auth fails
+        {/* TODO: only show error message if github auth fails
           <p className="error">{error}</p>
           */}
 
-          <Divider />
+        <Divider />
 
-          <OAuthButton
-            text={buttonText}
-            oAuthProvider="gitHub"
-            oAuthConfig={oAuthConfig}
-            blockchainDispatch={blockchainDispatch}
-            sponsorChainDispatch={sponsorChainDispatch}
-          />
-        </ContentBar>
-      </div>
+        <OAuthButton text={buttonText} oAuth={oAuth} />
+      </ContentBar>
     )
   }
 }

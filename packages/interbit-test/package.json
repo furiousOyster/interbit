@@ -1,19 +1,30 @@
 {
   "name": "interbit-test",
-  "version": "0.4.11",
-  "description": "Test the interbit package",
+  "version": "0.4.53",
+  "description": "Test the interbit package for API changes",
   "private": true,
   "scripts": {
-    "test": "mocha test/**/*.test.js"
+    "test": "jest"
   },
   "author": "BTL GROUP LTD",
   "license": "MIT",
   "dependencies": {
-    "interbit-core": "0.5.6",
-    "interbit-covenant-utils": "0.5.6"
+    "interbit-core": "0.14.0"
   },
   "devDependencies": {
     "assert": "^1.4.1",
-    "mocha": "^4.0.1"
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "fs-extra": "^5.0.0",
+    "jest": "20.0.4"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

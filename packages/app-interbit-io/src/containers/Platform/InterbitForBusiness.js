@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Row, Col, Media } from 'react-bootstrap'
-import { Card, Divider, LinkBar, Markdown, Quote } from 'lib-react-interbit'
+import { Row, Col } from 'react-bootstrap'
+import { Card, LinkBar, Markdown, Quote } from 'interbit-ui-components'
 
-import Navigation from '../../components/Navigation'
 import layout from '../../constants/layout'
 
 const mapStateToProps = state => ({
@@ -17,12 +16,12 @@ class InterbitForBusiness extends Component {
     const { content, linkBarContent } = this.props
     const colLayout = layout.colLayout.default
 
-    const forBusinessContent = (
-      <div className="ibweb-page">
+    return (
+      <div className="ibweb-page ib-for-business">
         <Row>
           <Col md={12}>
             <img
-              className="ibweb-image-full-width bleed"
+              className="ibweb-image-full-width bleed header"
               src={content.headerImage}
               alt={content.title}
             />
@@ -49,6 +48,7 @@ class InterbitForBusiness extends Component {
 
         <Row className="ibweb-mg-xx-lg">
           <Col {...colLayout}>
+            <LinkBar {...linkBarContent.contactUs} />
             <LinkBar {...linkBarContent.shareWithFriend} />
           </Col>
         </Row>
@@ -65,7 +65,7 @@ class InterbitForBusiness extends Component {
 
         <Row className="ibweb-mg-xx-lg">
           <Col {...colLayout}>
-            <Quote {...content.quoteBTL} />
+            <Quote {...content.quoteBTL} className="img-with-border" />
           </Col>
         </Row>
 
@@ -90,12 +90,6 @@ class InterbitForBusiness extends Component {
               markdown={content.consortia.content}
               className="ibweb-intro"
             />
-          </Col>
-        </Row>
-
-        <Row className="ibweb-mg-xx-lg">
-          <Col {...colLayout}>
-            <LinkBar {...linkBarContent.requestDemo} />
           </Col>
         </Row>
 
@@ -137,7 +131,7 @@ class InterbitForBusiness extends Component {
 
         <Row>
           <Col {...colLayout}>
-            <Quote {...content.quoteHowyl} />
+            <Quote {...content.quoteHowyl} className="img-with-border" />
           </Col>
         </Row>
 
@@ -153,27 +147,7 @@ class InterbitForBusiness extends Component {
 
         <Row className="ibweb-mg-xx-lg">
           <Col {...colLayout}>
-            <div className="ibweb-quote">
-              {content.quoteETH.content}
-              <Divider />
-              <Media>
-                <Media.Left>
-                  <div className="img-container">
-                    <img
-                      src={content.quoteETH.image}
-                      alt={content.quoteETH.author}
-                    />
-                  </div>
-                </Media.Left>
-                <Media.Body>
-                  {content.quoteETH.callToActions.map(c => (
-                    <p key={c.text}>
-                      <a href={c.to}>{c.text}</a>
-                    </p>
-                  ))}
-                </Media.Body>
-              </Media>
-            </div>
+            <Quote {...content.quoteETH} />
           </Col>
         </Row>
 
@@ -183,13 +157,6 @@ class InterbitForBusiness extends Component {
           </Col>
         </Row>
       </div>
-    )
-
-    return (
-      <Navigation
-        container={forBusinessContent}
-        className="app-interbit-io ib-for-business"
-      />
     )
   }
 }

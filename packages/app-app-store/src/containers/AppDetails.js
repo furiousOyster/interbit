@@ -2,7 +2,12 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { Grid, Row, Col } from 'react-bootstrap'
-import { ContentBar, Divider, IconButton, Markdown } from 'lib-react-interbit'
+import {
+  ContentBar,
+  Divider,
+  IconButton,
+  Markdown
+} from 'interbit-ui-components'
 
 import appDetails from '../content/appDetails'
 import appBars from '../content/appBars'
@@ -43,6 +48,8 @@ export class AppDetails extends Component {
       mdOffset: 2
     }
 
+    console.log(this.props)
+
     if (!appInfo) {
       return <NotFoundPage />
     }
@@ -64,7 +71,10 @@ export class AppDetails extends Component {
               <div className="info">
                 <h3>{appInfo.name}</h3>
                 <p>
-                  <a href={appInfo.companyUrl} target="_blank">
+                  <a
+                    href={appInfo.companyUrl}
+                    target="_blank"
+                    rel="noopener noreferrer">
                     {appInfo.companyName}
                   </a>
                   {appInfo.category}

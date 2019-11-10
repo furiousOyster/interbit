@@ -27,16 +27,14 @@ describe('The Build Must Not be Tampered With: It', () => {
       switch (name) {
         case 'interbit':
         case 'platform-deploy':
-        case 'interbit-core-buffer':
-        case 'lib-react-interbit':
         case 'template':
         case 'utils':
         case 'web-auth-endpoint':
           break
 
         default: {
-          const defaultMessage = `App name does not match standard app-* and is not in allowed exclusions whitelist: ${name}`
-          assert(name.match(/^(app|interbit)(-[a-z]+)+$/), defaultMessage)
+          const defaultMessage = `App name does not match regex s/^(app|interbit)(-[a-z0-9]+)+$/ and is not in allowed exclusions whitelist: ${name}`
+          assert(name.match(/^(app|interbit)(-[a-z0-9]+)+$/), defaultMessage)
         }
       }
 
@@ -46,30 +44,30 @@ describe('The Build Must Not be Tampered With: It', () => {
       const appName = appNames[index].startsWith(prefix)
         ? appNames[index].substr(prefix.length)
         : appNames[index]
-      assert.equal(name, appName, message)
+      assert.strictEqual(name, appName, message)
     })
   })
 
-  it.skip('does not have a modified lerna.json', () => {
+  it('does not have a modified lerna.json', () => {
     // eslint-disable-next-line
     const lernaPolice = require('../../../../lerna.json')
     // eslint-disable-next-line
     const lernaStandard = require('../standards/std.lerna.json')
 
-    assert.equal(
+    assert.strictEqual(
       JSON.stringify(lernaPolice),
       JSON.stringify(lernaStandard),
       'lerna.json has been modified.'
     )
   })
 
-  it.skip('does not have a modified package.json', () => {
+  it('does not have a modified package.json', () => {
     // eslint-disable-next-line
     const packageJsonPolice = require('../../../../package.json')
     // eslint-disable-next-line
     const jsonStandard = require('../standards/std.package.json')
 
-    assert.equal(
+    assert.strictEqual(
       JSON.stringify(packageJsonPolice),
       JSON.stringify(jsonStandard),
       'package.json has been modified.'
@@ -80,7 +78,7 @@ describe('The Build Must Not be Tampered With: It', () => {
     const wallabyConf = fs.readFileSync('../../wallaby.conf.js')
     const wallabyPolice = fs.readFileSync('src/standards/std.wallaby.conf.js')
 
-    assert.equal(
+    assert.strictEqual(
       wallabyConf.toString(),
       wallabyPolice.toString(),
       'wallaby.conf.js has been modified'
@@ -108,7 +106,11 @@ describe('The Build Must Not be Tampered With: It', () => {
         const compareFile = fs.readFileSync(newFileName)
 
         const message = `File ${templateFileName} in ${packageName}does not match template file.`
-        assert.equal(templateFile.toString(), compareFile.toString(), message)
+        assert.strictEqual(
+          templateFile.toString(),
+          compareFile.toString(),
+          message
+        )
       })
     })
   })

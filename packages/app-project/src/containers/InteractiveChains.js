@@ -4,21 +4,37 @@ import { Grid, Row } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import { reset } from 'redux-form'
 import queryString from 'query-string'
-import { chainDispatch } from 'interbit-middleware'
+import { interbitRedux } from 'interbit-ui-tools'
+import { LinkedCovenant } from 'interbit-ui-components'
 
-import LinkedCovenant from '../components/LinkedCovenant'
-import { actionCreators } from '../adapters/my-projects.adapter'
-import { getExploreChainState } from '../redux/exploreChainReducer'
+import { PRIVATE } from '../constants/chainAliases'
+import { createActionCreators } from '../adapters/my-projects.adapter'
+
+const { chainDispatch, selectors } = interbitRedux
 
 const mapStateToProps = (state, ownProps) => {
   const {
     location: { search }
   } = ownProps
   const query = queryString.parse(search)
-  const { chainId } = query
+  const { alias } = query
+
+  const chainAlias = alias || PRIVATE
+  const chainState = selectors.getChain(state, { chainAlias })
+  const chainId = selectors.getChainId(state, { chainAlias })
+
+  const actionCreators = createActionCreators(state)
 
   return {
-    selectedChain: getExploreChainState(state, chainId)
+    selectedChain: {
+      chainId,
+      chainAlias,
+      state: {
+        ...chainState,
+        interbit: chainState.interbit
+      },
+      actionCreators
+    }
   }
 }
 
@@ -26,27 +42,17 @@ const mapDispatchToProps = dispatch => ({
   resetForm: form => {
     dispatch(reset(form))
   },
-  blockchainDispatch: action => dispatch(chainDispatch('myProjects', action))
+  blockchainDispatch: chainAlias => action =>
+    dispatch(chainDispatch(chainAlias, action))
 })
-
-const generateChainName = chain => {
-  const chainName =
-    chain.state && chain.state.chainMetadata
-      ? chain.state.chainMetadata.chainName
-      : undefined
-  const covenant =
-    chain.state && chain.state.chainMetadata
-      ? chain.state.chainMetadata.covenant
-      : undefined
-
-  return chainName || covenant || chain.covenantName
-}
 
 export class InteractiveChains extends Component {
   static propTypes = {
     selectedChain: PropTypes.shape({
-      chainId: PropTypes.string.isRequired,
-      state: PropTypes.object.isRequired
+      chainId: PropTypes.string,
+      chainAlias: PropTypes.string.isRequired,
+      state: PropTypes.object.isRequired,
+      actionCreators: PropTypes.object
     }),
     resetForm: PropTypes.func.isRequired,
     blockchainDispatch: PropTypes.func.isRequired
@@ -68,11 +74,11 @@ export class InteractiveChains extends Component {
         <Row>
           <LinkedCovenant
             chainId={selectedChain.chainId}
-            chainName={generateChainName(selectedChain)}
+            chainAlias={selectedChain.chainAlias}
             raw={selectedChain.state}
-            covenant={{ actionCreators }}
+            covenant={{ actionCreators: selectedChain.actionCreators || {} }}
             reset={resetForm}
-            blockchainDispatch={blockchainDispatch}
+            blockchainDispatch={blockchainDispatch(selectedChain.chainAlias)}
           />
         </Row>
       </Grid>
@@ -80,4 +86,7 @@ export class InteractiveChains extends Component {
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(InteractiveChains)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(InteractiveChains)

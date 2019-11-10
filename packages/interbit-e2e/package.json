@@ -1,0 +1,33 @@
+{
+  "name": "interbit-e2e",
+  "version": "0.4.53",
+  "description": "End to end tests for the Interbit platform",
+  "private": true,
+  "scripts": {
+    "test": "jest",
+    "mttf": "node scripts/mttf.js"
+  },
+  "author": "BTL GROUP LTD",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "lodash": "^4.17.5",
+    "selenium-webdriver": "^4.0.0-alpha.1"
+  },
+  "devDependencies": {
+    "assert": "^1.4.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "chromedriver": "^2.38.3",
+    "jest": "20.0.4"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
+  }
+}

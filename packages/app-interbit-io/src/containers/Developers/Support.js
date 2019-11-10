@@ -1,15 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Row, Col } from 'react-bootstrap'
-import { Markdown, LinkBar, LinkBarSlack, Divider } from 'lib-react-interbit'
+import { Markdown, LinkBar, Divider } from 'interbit-ui-components'
 
-import DeveloperNavigation from '../../components/DeveloperNavigation'
-import getInterbitServices from '../../redux/getInterbitServices'
-import urls from '../../constants/urls'
 import layout from '../../constants/layout'
 
 const mapStateToProps = state => ({
-  interbitServices: getInterbitServices(state),
   linkBarContent: state.content.linkBars,
   ...state.content.developers
 })
@@ -20,7 +16,7 @@ class DevelopersSupport extends Component {
     const { support, linkBarContent } = this.props
     const colLayout = layout.colLayout.developers
 
-    const supportContent = (
+    return (
       <div className="ibweb-page dev-support">
         <Row className="ibweb-mg-md">
           <Col {...colLayout}>
@@ -29,29 +25,15 @@ class DevelopersSupport extends Component {
           </Col>
         </Row>
 
-        {/* <div className="sections">
-          {support.sections.map(s => (
-            <Row key={s.title} className="ibweb-mg-md">
-              <Col {...colLayout}>
-                <h3>{s.title}</h3>
-                <Markdown markdown={s.content} className="ibweb-intro" />
-              </Col>
-            </Row>
-          ))}
-        </div> */}
-
         <Divider />
 
         <Row className="ibweb-mg-xx-lg">
           <Col {...colLayout}>
             <LinkBar {...linkBarContent.gitHub} />
-            <LinkBarSlack to={urls.SUPPORT_SLACK} />
           </Col>
         </Row>
       </div>
     )
-
-    return <DeveloperNavigation {...this.props} component={supportContent} />
   }
 }
 

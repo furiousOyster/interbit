@@ -11,6 +11,7 @@ _book
 
 # testing
 /coverage
+**/coverage-total
 .nyc_output
 
 # production
@@ -46,3 +47,4 @@ coverage
 package-lock.json
 yarn.lock
 
+docs/gitbook

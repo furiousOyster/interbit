@@ -1,0 +1,25 @@
+.ibweb {
+  .btn.text-button {
+    padding: 0;
+    font-size: 16px;
+    color: $ib-blue;
+    border: transparent;
+
+    &:hover,
+    &:active,
+    &:focus,
+    &:active.focus,
+    &.active:hover,
+    &.active:focus,
+    &.active.focus {
+      background: #fff;
+      outline: 0;
+      -webkit-box-shadow: none;
+      box-shadow: none;
+    }
+  }
+
+  .btn.disabled {
+    pointer-events: none;
+  }
+}

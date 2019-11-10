@@ -1,15 +1,13 @@
 // © 2018 BTL GROUP LTD -  This package is licensed under the MIT license https://opensource.org/licenses/MIT
 const Immutable = require('seamless-immutable')
 const {
-  selectors: interbufferSelectors,
-  covenant: { reducer: interbufferReducer }
-} = require('interbit-core-buffer')
-const {
-  createChildChain,
-  redispatch,
-  remoteRedispatch,
-  startConsumeState
-} = require('interbit-covenant-utils')
+  coreCovenant: {
+    redispatch,
+    remoteRedispatch,
+    actionCreators: { createChildChain, startConsumeState }
+  },
+  rootCovenant: { reducer: rootReducer }
+} = require('interbit-covenant-tools')
 
 const sampleProjectList = require('./sampleProjects')
 const interbitServices = require('./interbitServices')
@@ -19,7 +17,7 @@ const { actionTypes, actionCreators } = require('./actions')
 const {
   actionCreators: projectActionCreators,
   authorizedRemoteActions
-} = require('../project/actions')
+} = require('./projectActions')
 
 const initialState = Immutable.from({
   // Shown in list of running chains
@@ -49,7 +47,7 @@ const reducer = (state = initialState, action) => {
     return state
   }
 
-  let nextState = interbufferReducer(state, action)
+  let nextState = rootReducer(state, action)
   console.log(action)
   switch (action.type) {
     case actionTypes.AUTHORIZED: {
@@ -74,21 +72,26 @@ const reducer = (state = initialState, action) => {
         projectName,
         description,
         icon,
-        launchUrl
+        launchUrl,
+        sponsorChainConfig
       } = action.payload
 
-      return createProjectChain(nextState, {
-        projectAlias,
-        projectName,
-        description,
-        icon,
-        launchUrl
-      })
+      return createProjectChain(
+        nextState,
+        {
+          projectAlias,
+          projectName,
+          description,
+          icon,
+          launchUrl
+        },
+        sponsorChainConfig
+      )
     }
 
     case actionTypes.CREATE_SAMPLE_PROJECT: {
       console.log('DISPATCH: ', action)
-      const { sampleProjectName } = action.payload
+      const { sampleProjectName, sponsorChainConfig } = action.payload
       const sampleProjectToCreate = findMatchingSampleProject(
         state,
         sampleProjectName
@@ -103,13 +106,17 @@ const reducer = (state = initialState, action) => {
           launchUrl
         } = sampleProjectToCreate
 
-        return createProjectChain(nextState, {
-          projectAlias,
-          projectName,
-          description,
-          icon,
-          launchUrl
-        })
+        return createProjectChain(
+          nextState,
+          {
+            projectAlias,
+            projectName,
+            description,
+            icon,
+            launchUrl
+          },
+          sponsorChainConfig
+        )
       }
 
       return state
@@ -117,6 +124,7 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.CREATE_SAMPLE_PROJECTS: {
       console.log('DISPATCH: ', action)
+      const { sponsorChainConfig } = action.payload
       const missingSampleProjects = findMissingSampleProjects(state)
 
       if (missingSampleProjects.length) {
@@ -129,13 +137,17 @@ const reducer = (state = initialState, action) => {
             launchUrl
           } = missingSampleProjects[i]
 
-          nextState = createProjectChain(nextState, {
-            projectAlias,
-            projectName,
-            description,
-            icon,
-            launchUrl
-          })
+          nextState = createProjectChain(
+            nextState,
+            {
+              projectAlias,
+              projectName,
+              description,
+              icon,
+              launchUrl
+            },
+            sponsorChainConfig
+          )
         }
         return nextState
       }
@@ -148,18 +160,18 @@ const reducer = (state = initialState, action) => {
 
       const { projectAlias, actionToForward } = action.payload
 
-      if (!isValidProjectAction(state, actionToForward)) {
-        console.log(`Invalid project action: ${actionToForward}`)
-        throw new Error(`Invalid project action: ${actionToForward}`)
-      }
-
       const projectChainId =
         state.getIn(['interbit', 'children', projectAlias, 'blockHash']) ||
         state.getIn(['interbit', 'newChildren', projectAlias, 'blockHash'])
 
       if (!projectChainId) {
-        console.log(`Unknown project alias: ${actionToForward}`)
-        throw new Error(`Unknown project alias: ${actionToForward}`)
+        console.log(`Unknown project alias: ${projectAlias}`)
+        throw new Error(`Unknown project alias: ${projectAlias}`)
+      }
+
+      if (!isValidProjectAction(state, actionToForward)) {
+        console.log(`Invalid project action: ${actionToForward}`)
+        throw new Error(`Invalid project action: ${actionToForward}`)
       }
 
       console.log('REMOTE DISPATCH: ', projectChainId, actionToForward)
@@ -173,20 +185,17 @@ const reducer = (state = initialState, action) => {
 
 const createProjectChain = (
   state,
-  { projectAlias, projectName, description, icon, launchUrl }
+  { projectAlias, projectName, description, icon, launchUrl },
+  { covenantHash: childCovenantHash, sponsorChainId, blockMaster } = {}
 ) => {
   let nextState = state
 
-  console.log('CREATING PROJECT CHAIN: ', { interbufferSelectors })
-  const covenantHash = interbufferSelectors.getCovenantHash(
-    state,
-    'app-project_project'
-  )
-  console.log({ covenantHash })
-
+  console.log('CREATING PROJECT CHAIN: ')
   const createChildChainAction = createProjectChainAction({
-    covenantHash,
-    projectAlias
+    projectAlias,
+    childCovenantHash,
+    sponsorChainId,
+    blockMaster
   })
 
   console.log('REDISPATCH: ', createChildChainAction)
@@ -209,7 +218,12 @@ const createProjectChain = (
   return nextState
 }
 
-const createProjectChainAction = ({ projectAlias, covenantHash }) => {
+const createProjectChainAction = ({
+  projectAlias,
+  childCovenantHash,
+  sponsorChainId,
+  blockMaster
+}) => {
   const directoryJoinName = `Directory-${projectAlias}`
 
   return createChildChain({
@@ -243,7 +257,9 @@ const createProjectChainAction = ({ projectAlias, covenantHash }) => {
         }
       ]
     },
-    childCovenantHash: covenantHash
+    childCovenantHash,
+    sponsorChainId,
+    blockMaster
   })
 }
 

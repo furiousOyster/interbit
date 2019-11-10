@@ -1,17 +1,18 @@
-const covenantName = 'app-account-my-account'
+const uuid = require('uuid')
+
+const actionPrefix = 'app-account-my-account'
 
 const actionTypes = {
-  UPDATE_PROFILE: `${covenantName}/UPDATE_PROFILE`,
-  SHARE_PROFILE_TOKENS: `${covenantName}/SHARE_PROFILE_TOKENS`,
-  STOP_SHARING: `${covenantName}/STOP_SHARING`,
-  START_AUTHENTICATION: `${covenantName}/START_AUTHENTICATION`,
-  CANCEL_AUTHENTICATION: `${covenantName}/CANCEL_AUTHENTICATION`,
-  COMPLETE_AUTHENTICATION: `${covenantName}/COMPLETE_AUTHENTICATION`
+  UPDATE_PROFILE: `${actionPrefix}/UPDATE_PROFILE`,
+  SHARE_PROFILE_TOKENS: `${actionPrefix}/SHARE_PROFILE_TOKENS`,
+  STOP_SHARING: `${actionPrefix}/STOP_SHARING`,
+  START_AUTHENTICATION: `${actionPrefix}/START_AUTHENTICATION`,
+  CANCEL_AUTHENTICATION: `${actionPrefix}/CANCEL_AUTHENTICATION`,
+  COMPLETE_AUTHENTICATION: `${actionPrefix}/COMPLETE_AUTHENTICATION`,
+  RESET_PROFILE: `${actionPrefix}/RESET_PROFILE`
 }
 
-// Could use UUID to generate a random join name
-const generateJoinName = ({ consumerChainId, providerChainId }) =>
-  `PROFILE-${providerChainId.substr(0, 12)}-${consumerChainId.substr(0, 12)}`
+const generateJoinName = () => `PROFILE-${uuid.v4().toUpperCase()}`
 
 const actionCreators = {
   updateProfile: ({ alias, name, email }) => ({
@@ -23,11 +24,11 @@ const actionCreators = {
     }
   }),
 
-  shareProfileTokens: ({ providerChainId, consumerChainId, sharedTokens }) => ({
+  shareProfileTokens: ({ consumerChainId, sharedTokens }) => ({
     type: actionTypes.SHARE_PROFILE_TOKENS,
     payload: {
       consumerChainId,
-      joinName: generateJoinName({ providerChainId, consumerChainId }),
+      joinName: generateJoinName(),
       sharedTokens
     }
   }),
@@ -53,7 +54,7 @@ const actionCreators = {
   }),
 
   cancelAuthentication: ({ requestId }) => ({
-    type: actionTypes.START_AUTHENTICATION,
+    type: actionTypes.CANCEL_AUTHENTICATION,
     payload: {
       requestId
     }
@@ -76,6 +77,11 @@ const actionCreators = {
       requestId,
       timestamp
     }
+  }),
+
+  resetProfile: () => ({
+    type: actionTypes.RESET_PROFILE,
+    payload: {}
   })
 }
 

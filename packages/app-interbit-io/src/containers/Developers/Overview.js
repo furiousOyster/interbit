@@ -6,16 +6,11 @@ import {
   ContentBar,
   Markdown,
   LinkBar,
-  LinkBarSlack,
   Divider
-} from 'lib-react-interbit'
-import DeveloperNavigation from '../../components/DeveloperNavigation'
-import getInterbitServices from '../../redux/getInterbitServices'
-import urls from '../../constants/urls'
+} from 'interbit-ui-components'
 import layout from '../../constants/layout'
 
 const mapStateToProps = state => ({
-  interbitServices: getInterbitServices(state),
   linkBarContent: state.content.linkBars,
   ...state.content.developers
 })
@@ -26,7 +21,7 @@ class DevelopersOverview extends Component {
     const { overview, linkBarContent } = this.props
     const colLayout = layout.colLayout.developers
 
-    const overviewContent = (
+    return (
       <div className="ibweb-page dev-overview">
         <Row>
           <Col {...colLayout}>
@@ -35,19 +30,6 @@ class DevelopersOverview extends Component {
           </Col>
         </Row>
 
-        {/* product roadmap sidebar example
-        <Row className="ibweb-dev-sidebar-list-row">
-          <Col {...colLayout}>
-            <ContentBarDefault {...overview.intro.contentBars[0]} />
-          </Col>
-          <Col lg={4} md={12} className="ibweb-dev-sidebar-col">
-            <SidebarList
-              title={overview.productRoadmap.title}
-              contents={overview.productRoadmap.items}
-            />
-          </Col>
-        </Row>
-    */}
         <Row className="app-characteristics">
           <Col {...colLayout}>
             <h2>{overview.appsBuilt.title}</h2>
@@ -73,7 +55,6 @@ class DevelopersOverview extends Component {
 
         <Row className="common-services">
           <Col {...colLayout}>
-            <h2>{overview.commonServices.title}</h2>
             {overview.commonServices.bars.map(b => (
               <ContentBar
                 key={b.title}
@@ -92,25 +73,15 @@ class DevelopersOverview extends Component {
           </Col>
         </Row>
 
-        <Row>
-          <Col {...colLayout}>
-            <LinkBar {...linkBarContent.accountChain} className="blue" />
-          </Col>
-        </Row>
-
         <Divider />
 
         <Row className="ibweb-mg-xx-lg">
           <Col {...colLayout}>
             <LinkBar {...linkBarContent.platformFeatures} />
-            <LinkBar {...linkBarContent.productRoadmap} />
-            <LinkBarSlack to={urls.SUPPORT_SLACK} />
           </Col>
         </Row>
       </div>
     )
-
-    return <DeveloperNavigation {...this.props} component={overviewContent} />
   }
 }
 

@@ -1,11 +1,10 @@
-import navigation from './navigation'
-
 export default {
-  ACCOUNT: `/${navigation.ACCOUNT.eventKey}`,
+  ACCOUNT: '/account',
   BLOCK_EXPLORER: '/explore',
   CHAINS: '/chains',
   CONNECT: '/connect',
   CREATE_ACCOUNT: '/create-account',
-  DEVELOPMENT: `/${navigation.DEVELOPMENT.eventKey}`,
-  HOME: '/'
+  DEVELOPMENT: '/development',
+  HOME: '/',
+  PROFILE: '/profile'
 }

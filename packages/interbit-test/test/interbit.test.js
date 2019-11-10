@@ -1,6 +1,41 @@
 // © 2018 BTL GROUP LTD -  This package is licensed under the MIT license https://opensource.org/licenses/MIT
 const assert = require('assert')
 const interbit = require('interbit-core')
+const fs = require('fs-extra')
+
+const CI_INTERBIT_KEY_GEN_TIMEOUT = 45000
+const CI_SUBSCRIBE_UNSUBSCRIBE_TIMEOUT = 8000
+const CI_2_BLOCK_SLEEP = 5000
+
+const verifyApi = (api, expectedApi) => {
+  const extras = Object.keys(api).reduce(
+    (acc, key) => (expectedApi[key] ? acc : acc.concat(key)),
+    []
+  )
+  assert.deepStrictEqual(
+    extras,
+    [],
+    'Interface has extra properties or methods'
+  )
+
+  const missing = Object.keys(expectedApi).reduce(
+    (acc, key) => (api[key] ? acc : acc.concat(key)),
+    []
+  )
+  assert.deepStrictEqual(
+    missing,
+    [],
+    'Interface has missing properties or methods'
+  )
+
+  Object.entries(expectedApi).forEach(([key, expectedType]) => {
+    assert.strictEqual(
+      typeof api[key],
+      expectedType,
+      `${key} is not a ${expectedType}`
+    )
+  })
+}
 
 describe('interbit', () => {
   it('is imported', () => {
@@ -10,157 +45,172 @@ describe('interbit', () => {
   it('has an expected API', () => {
     console.log('interbit: ', interbit)
 
-    assert.ok(interbit.createHypervisor)
-    assert.equal(typeof interbit.createHypervisor, 'function')
+    const expectedInterbitApi = {
+      createHypervisor: 'function',
+      createCli: 'function',
+      commonActions: 'object',
+      createGenesisBlock: 'function',
+      createDefaultSponsoredChainConfig: 'function',
+      genesisConfigBuilder: 'function',
+      generateKeyPair: 'function',
+      VERSION: 'string'
+    }
 
-    assert.ok(interbit.createCli)
-    assert.equal(typeof interbit.createCli, 'function')
-
-    assert.ok(interbit.commonActions)
-    assert.equal(typeof interbit.commonActions, 'object')
-
-    assert.ok(interbit.createGenesisBlock)
-    assert.equal(typeof interbit.createGenesisBlock, 'function')
-
-    assert.ok(interbit.createDefaultSponsoredChainConfig)
-    assert.equal(typeof interbit.createDefaultSponsoredChainConfig, 'function')
-
-    assert.ok(interbit.genesisConfigBuilder)
-    assert.equal(typeof interbit.genesisConfigBuilder, 'function')
+    verifyApi(interbit, expectedInterbitApi)
   })
 
   describe('hypervisor', () => {
-    it('has expected API', async () => {
-      const hypervisor = await interbit.createHypervisor()
+    let keyPair
+    let hypervisor
+    let cli
+    let dbPath
+
+    beforeAll(async done => {
+      const env = { ...process.env }
+      dbPath = `./db-${Date.now()}`
+
+      console.log('Generating key pair...')
+      keyPair = await interbit.generateKeyPair()
+
+      console.log('Creating hypervisor...')
+      process.env.DB_PATH = dbPath
+      hypervisor = await interbit.createHypervisor({ keyPair })
+
+      console.log('Creating cli...')
+      cli = await interbit.createCli(hypervisor)
+
+      process.env = env
+
+      done()
+    }, CI_INTERBIT_KEY_GEN_TIMEOUT)
+
+    afterAll(async done => {
+      if (cli) {
+        console.log('Shutting down cli...')
+        await cli.shutdown()
+        cli = undefined
+      }
+      if (hypervisor) {
+        console.log('Stopping hyperblocker...')
+        hypervisor.stopHyperBlocker()
+        hypervisor = undefined
+      }
+      if (dbPath) {
+        console.log('Removing DB...')
+        await fs.remove(dbPath)
+        dbPath = undefined
+      }
+      done()
+    })
+
+    it('has expected API', () => {
       console.log('hypervisor: ', hypervisor)
 
-      try {
-        assert.ok(hypervisor.dispatch)
-        assert.equal(typeof hypervisor.dispatch, 'function')
-
-        assert.ok(hypervisor.getState)
-        assert.equal(typeof hypervisor.getState, 'function')
-
-        assert.ok(hypervisor.subscribe)
-        assert.equal(typeof hypervisor.subscribe, 'function')
-
-        assert.ok(hypervisor.startHyperBlocker)
-        assert.equal(typeof hypervisor.startHyperBlocker, 'function')
-
-        assert.ok(hypervisor.stopHyperBlocker)
-        assert.equal(typeof hypervisor.stopHyperBlocker, 'function')
-
-        assert.ok(hypervisor.getCurrentBlock)
-        assert.equal(typeof hypervisor.getCurrentBlock, 'function')
-
-        assert.ok(hypervisor.setHeavyBlockInterval)
-        assert.equal(typeof hypervisor.setHeavyBlockInterval, 'function')
-
-        assert.ok(hypervisor.waitForState)
-        assert.equal(typeof hypervisor.waitForState, 'function')
-
-        assert.ok(hypervisor.chainId)
-        assert.equal(typeof hypervisor.chainId, 'string')
-      } finally {
-        hypervisor.stopHyperBlocker()
+      const expectedHypervisorApi = {
+        dispatch: 'function',
+        getState: 'function',
+        subscribe: 'function',
+        startHyperBlocker: 'function',
+        stopHyperBlocker: 'function',
+        getCurrentBlock: 'function',
+        setHeavyBlockInterval: 'function',
+        waitForState: 'function',
+        chainId: 'string',
+        keyPair: 'object',
+        blockSubscribe: 'function'
       }
+
+      verifyApi(hypervisor, expectedHypervisorApi)
     })
-  })
 
-  describe('cli', () => {
-    it('has expected API', async () => {
-      const hypervisor = await interbit.createHypervisor()
+    it('boots with the supplied key', () => {
+      assert.deepStrictEqual(hypervisor.keyPair, keyPair)
+    })
 
-      try {
-        const cli = await interbit.createCli(hypervisor)
+    describe('cli', () => {
+      it('has expected API', async () => {
         console.log('cli: ', cli)
 
-        assert.ok(cli.connect)
-        assert.equal(typeof cli.connect, 'function')
+        const expectedCliApi = {
+          connect: 'function',
+          createChain: 'function',
+          startChain: 'function',
+          loadChain: 'function',
+          getChain: 'function',
+          removeChain: 'function',
+          generateKeyPair: 'function',
+          getKeys: 'function',
+          createGenesisBlock: 'function',
+          getState: 'function',
+          subscribe: 'function',
+          sendChainToSponsor: 'function',
+          deployCovenant: 'function',
+          applyCovenant: 'function',
+          startServer: 'function',
+          stopServer: 'function',
+          shutdown: 'function',
+          destroyChain: 'function',
+          stats: 'function',
+          kvGetKeys: 'function'
+        }
 
-        assert.ok(cli.createChain)
-        assert.equal(typeof cli.createChain, 'function')
+        verifyApi(cli, expectedCliApi)
+      })
 
-        assert.ok(cli.startChain)
-        assert.equal(typeof cli.startChain, 'function')
+      it('will boot a chain that has the chain ID specified in the generated genesis block', async () => {
+        const genesisBlock = await cli.createGenesisBlock()
+        const chainId = await cli.startChain({ genesisBlock })
+        assert.strictEqual(chainId, genesisBlock.blockHash)
+      })
 
-        assert.ok(cli.loadChain)
-        assert.equal(typeof cli.loadChain, 'function')
+      describe('chain', () => {
+        it('has expected API', async () => {
+          const chainId = await cli.createChain()
+          const chain = await cli.getChain(chainId)
+          console.log('chain: ', chain)
 
-        assert.ok(cli.getChain)
-        assert.equal(typeof cli.getChain, 'function')
+          const expectedChainApi = {
+            dispatch: 'function',
+            getState: 'function',
+            getCurrentBlock: 'function',
+            subscribe: 'function',
+            blockSubscribe: 'function',
+            getCachedBlocks: 'function'
+          }
 
-        assert.ok(cli.removeChain)
-        assert.equal(typeof cli.removeChain, 'function')
+          verifyApi(chain, expectedChainApi)
+        })
 
-        assert.ok(cli.generateKeyPair)
-        assert.equal(typeof cli.generateKeyPair, 'function')
+        // interbit-core 0.7.0 regression - unsubscribe() does not unsubscribe #186
+        it(
+          'subscribe and unsubscribe work',
+          async () => {
+            const chainId = await cli.createChain()
+            const chain = await cli.getChain(chainId)
+            let unsubscribe = () => {}
+            let count = 0
+            console.time('Time to unsubscribe')
+            unsubscribe = chain.subscribe(() => {
+              console.log(`Subscribe callback: ${count}`)
+              count += 1
+              if (count === 1) {
+                unsubscribe()
+                console.timeEnd('Time to unsubscribe')
+              }
+            })
+            // Potentially brittle
+            // Test needs to wait for at least 2 blocks
+            // sleep timeout assumes a blocking frequency of 2 secs
+            // test timeout needs to be longer than the sleep period
+            // Added more wiggle room around timeouts for Heroku
+            await sleep(CI_2_BLOCK_SLEEP)
+            assert.strictEqual(count, 1)
+          },
+          CI_SUBSCRIBE_UNSUBSCRIBE_TIMEOUT
+        )
 
-        assert.ok(cli.getKeys)
-        assert.equal(typeof cli.getKeys, 'function')
-
-        assert.ok(cli.createGenesisBlock)
-        assert.equal(typeof cli.createGenesisBlock, 'function')
-
-        assert.ok(cli.getState)
-        assert.equal(typeof cli.getState, 'function')
-
-        assert.ok(cli.subscribe)
-        assert.equal(typeof cli.subscribe, 'function')
-
-        assert.ok(cli.kvPut)
-        assert.equal(typeof cli.kvPut, 'function')
-
-        assert.ok(cli.kvGet)
-        assert.equal(typeof cli.kvGet, 'function')
-
-        assert.ok(cli.sendChainToSponsor)
-        assert.equal(typeof cli.sendChainToSponsor, 'function')
-
-        assert.ok(cli.deployCovenant)
-        assert.equal(typeof cli.deployCovenant, 'function')
-
-        assert.ok(cli.applyCovenant)
-        assert.equal(typeof cli.applyCovenant, 'function')
-
-        assert.ok(cli.startServer)
-        assert.equal(typeof cli.startServer, 'function')
-
-        assert.ok(cli.stopServer)
-        assert.equal(typeof cli.stopServer, 'function')
-      } finally {
-        hypervisor.stopHyperBlocker()
-      }
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
+      })
     })
-  })
-
-  describe('chain', () => {
-    it('has expected API', async () => {
-      const hypervisor = await interbit.createHypervisor()
-
-      try {
-        const cli = await interbit.createCli(hypervisor)
-        const chainId = await cli.createChain()
-        const chain = await cli.getChain(chainId)
-        console.log('chain: ', chain)
-
-        assert.ok(chain.dispatch)
-        assert.equal(typeof chain.dispatch, 'function')
-
-        assert.ok(chain.getState)
-        assert.equal(typeof chain.getState, 'function')
-
-        assert.ok(chain.getCurrentBlock)
-        assert.equal(typeof chain.getCurrentBlock, 'function')
-
-        assert.ok(chain.subscribe)
-        assert.equal(typeof chain.subscribe, 'function')
-
-        assert.ok(chain.getActionPoolLength)
-        assert.equal(typeof chain.getActionPoolLength, 'function')
-      } finally {
-        hypervisor.stopHyperBlocker()
-      }
-    }).timeout(5000)
   })
 })

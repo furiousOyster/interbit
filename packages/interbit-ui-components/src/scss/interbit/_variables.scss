@@ -1,0 +1,87 @@
+// Bootstrap variable overrides
+$grid-gutter-width:         16px;
+
+$screen-lg: 1024px;
+$screen-md: 630px;
+$screen-sm: 630px;
+
+$container-large-desktop: $screen-lg -  2*$grid-gutter-width;
+$container-desktop: $screen-md - 2*$grid-gutter-width;
+$container-tablet: $screen-sm - 2*$grid-gutter-width;
+
+$navbar-border-radius: 0;
+
+// Functions
+$browser-context: 16;
+
+@function rem($pixels, $context: $browser-context) {
+  @if (unitless($pixels)) {
+    $pixels: $pixels * 1px;
+  }
+
+  @if (unitless($context)) {
+    $context: $context * 1px;
+  }
+
+  @return $pixels / $context * 1rem;
+}
+
+// Font sizes
+$font-size-xx-sm:     rem(12);
+$font-size-x-sm:      rem(14);
+$font-size-sm:        rem(16);
+$font-size-md:        rem(22);
+$font-size-lg:        rem(24);
+$font-size-x-lg:      rem(32);
+$font-size-xx-lg:     rem(40);
+$font-size-xxx-lg:    rem(50);
+
+// Spacing
+$margin-xx-sm:      4px;
+$margin-x-sm:       8px;
+$margin-sm:         16px;
+$margin-md:         32px;
+$margin-lg:         64px;
+$margin-x-lg:       80px;
+$margin-xx-lg:      128px;
+
+$border-radius-x-sm:  4px;
+$border-radius-sm:    8px;
+$border-radius-md:    16px;
+$border-radius-lg:    30px;
+
+// CSS grid redesign scaffolding values
+$ib-grid-max-width: 1280px;
+
+// Interbit website colours, temporary. Use these variables in the CSS for now.
+$ib-black:            #000;
+$ib-opaque-black:     rgba(0, 0, 0, 0.5);
+$ib-grey:             #f7f7f7;
+$ib-dark-grey:        #e7e7e7;
+$ib-text-grey:        #666;
+$ib-nav-grey:         #828282;
+$ib-white:            #fff;
+$ib-blue:             #17a6f2;
+$ib-light-blue:       rgba(23, 166, 242, 0.1);
+$ib-red:              #d0021b;
+$ib-black-20:         #cecece;
+$ib-aqua-100:         #21d6d6;
+
+// Colours for CSS grid redesign
+$ib-grid-med-grey:    #e6e6e6;
+$ib-grid-blue:        #1385e8;
+$ib-grid-green:       #00a451;
+$ib-grid-pale-blue:   #d5e1eb;
+$ib-grid-red:         #eb5757;
+$ib-grid-yellow:      #f3c94c;
+$ib-black-20:         #cecece;
+$ib-aqua-100:         #21d6d6;
+$ib-dark-blue:        #007fa0;
+
+// Colours for CSS grid redesign
+$ib-grid-med-grey:    #e6e6e6;
+$ib-grid-blue:        #1385e8;
+$ib-grid-green:       #00a451;
+$ib-grid-pale-blue:   #d5e1eb;
+$ib-grid-red:         #eb5757;
+$ib-grid-yellow:      #f3c94c;

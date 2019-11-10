@@ -6,12 +6,9 @@ import {
   IconButton,
   Markdown,
   LinkBar,
-  LinkBarSlack,
   Divider
-} from 'lib-react-interbit'
+} from 'interbit-ui-components'
 
-import DeveloperNavigation from '../../components/DeveloperNavigation'
-import urls from '../../constants/urls'
 import layout from '../../constants/layout'
 
 const mapStateToProps = state => ({
@@ -25,7 +22,7 @@ class DevelopersExampleApps extends Component {
     const { exampleApps, linkBarContent } = this.props
     const colLayout = layout.colLayout.developers
 
-    const exampleAppsContent = (
+    return (
       <div className="ibweb-page dev-examples">
         <Row>
           <Col {...colLayout}>
@@ -42,13 +39,9 @@ class DevelopersExampleApps extends Component {
                 title={a.title}
                 image={a.image}
                 className="image-sm">
-                <p>
-                  <a href={a.githubUrl}>View Source on GitHub</a>
-                </p>
                 <p>{a.text}</p>
                 <Divider />
-                {/* <IconButton to={a.appUrl} text="Open App" /> */}
-                <IconButton to={a.storeUrl} text="View in Store" />
+                <IconButton to={a.githubUrl} text="View Source" />
               </ContentBar>
             ))}
           </Col>
@@ -59,14 +52,9 @@ class DevelopersExampleApps extends Component {
         <Row>
           <Col {...colLayout}>
             <LinkBar {...linkBarContent.resources} />
-            <LinkBarSlack to={urls.SUPPORT_SLACK} />
           </Col>
         </Row>
       </div>
-    )
-
-    return (
-      <DeveloperNavigation {...this.props} component={exampleAppsContent} />
     )
   }
 }

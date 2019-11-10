@@ -1,50 +1,22 @@
 import constants from '../../constants'
 
-import iconAccounts from '../../assets/icons/iconAccounts.svg'
 import iconBuild from '../../assets/icons/iconBuild.svg'
 import iconCreateIBApp from '../../assets/icons/iconCreateIBApp.png'
-import iconHosting from '../../assets/icons/iconHosting.svg'
 import iconIntegration from '../../assets/icons/iconIntegration.svg'
 import iconLightning from '../../assets/icons/iconLightning.svg'
 import iconManyChains from '../../assets/icons/iconManyChains.svg'
-import iconPayments from '../../assets/icons/iconPayments.svg'
-import iconStore from '../../assets/icons/iconStore.svg'
 
 export default {
   title: 'Overview',
   heading: 'How to build better apps, faster',
-  productRoadmap: {
-    title: 'Product Roadmap',
-    items: [
-      {
-        text: `Spare ribs
-      (Q4 2018)`
-      },
-      {
-        text: `Turducken
-        (Q4 2018)`
-      },
-      {
-        text: `Beef pork belly
-        (Q4 2018)`
-      },
-      {
-        text: `Ribs jerky prosciutto
-        (Q4 2018)`
-      },
-      {
-        text: `Steak
-        (Q4 2018)`
-      }
-    ]
-  },
-
   intro: {
     text: `Interbit helps you build better apps, faster—and get them into the hands of users who need them.
 
 Interbit is a general purpose, permission-based blockchain platform built specifically for the rapid development of applications. As a blockchain built entirely with JavaScript—Interbit is for all developers, not just those with blockchain experience.
 
-Interbit enables you to use many joined blockchains to build your applications—instead of a single, massive chain. This allows those chains to securely share between them, enabling service-oriented architectures.`
+Interbit enables you to use many blockchains, joined together, to build your applications—instead of a single, monolithic chain. This allows those chains to share data securely between them, enabling service-oriented architectures.
+
+[Go to docs now.](${constants.urls.SDK_DOCS})`
   },
 
   getStarted: {
@@ -89,11 +61,11 @@ Interbit enables you to use many joined blockchains to build your applications�
         content: 'Perfect audit, no logs'
       },
       {
-        title: 'Disaster recovery',
+        title: 'Disaster recoverable',
         content: 'RTO & RPO nearly zero'
       },
       {
-        title: 'Data integrity',
+        title: 'Ensured data integrity',
         content: 'Immutable app history'
       },
       {
@@ -125,70 +97,6 @@ Interbit enables you to use many joined blockchains to build your applications�
             text: 'View Source on GitHub'
           }
         ]
-      },
-      {
-        title: 'Accounts',
-        image: iconAccounts,
-        content:
-          'Secure identity service with an easy-to-integrate Single Sign-On experience.',
-        callToActions: [
-          {
-            to: constants.urls.GITHUB_IB,
-            text: 'View Source on GitHub'
-          },
-          {
-            to: constants.urls.APP_ACCOUNT,
-            text: 'Open App'
-          }
-        ]
-      },
-      {
-        title: 'AccountKit',
-        image: iconAccounts,
-        content:
-          'Easily implement account creation and authentication functions within your app.',
-        callToActions: [
-          {
-            to: constants.urls.GITHUB_IB,
-            text: 'View Source on GitHub'
-          }
-        ]
-      },
-      {
-        title: 'Store',
-        image: iconStore,
-        content:
-          'A place to discover, promote, and distribute apps and application services.',
-        callToActions: [
-          {
-            to: constants.urls.APP_STORE,
-            text: 'Open App'
-          }
-        ]
-      },
-      {
-        title: 'Hosting',
-        image: iconHosting,
-        className: 'in-progress',
-        content: `Easy packaging and deployment of Interbit-powered apps. Get your project hosted within minutes.
-
-Coming Soon`
-      },
-      {
-        title: 'HostingKit',
-        image: iconHosting,
-        className: 'in-progress',
-        content: `Easily deploy projects to your host. HostingKit takes care of packaging Interbit apps for hosting providers.
-
-Coming Soon`
-      },
-      {
-        title: 'Payments',
-        image: iconPayments,
-        content: `Collect payments from your customers with Interbit. Micro-transactions have never been this easy.
-
-Coming Soon`,
-        className: 'in-progress'
       }
     ]
   }

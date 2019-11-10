@@ -1,11 +1,16 @@
 // © 2018 BTL GROUP LTD -  This package is licensed under the MIT license https://opensource.org/licenses/MIT
 const Immutable = require('seamless-immutable')
-const utils = require('interbit-covenant-utils')
+const {
+  coreCovenant: {
+    redispatch,
+    actionCreators: { startConsumeState, startProvideState }
+  }
+} = require('interbit-covenant-tools')
 const { actionTypes, actionCreators } = require('./actions')
+const { PATHS, SHARED_PROFILE } = require('./constants')
 
 const initialState = Immutable.from({
   chainMetadata: {
-    name: 'anonymous user',
     chainName: 'Personal Account Chain'
   },
   // Tokens comprising the user's profile
@@ -14,7 +19,7 @@ const initialState = Immutable.from({
     name: 'anonymous user'
   },
   // Tokens that user has explicitly shared with other
-  // chains through the cAuth loop. This ensures that
+  // chains through the cAuthloop. This ensures that
   // the user has full control over what information is
   // shared and can revoke access at any time.
   shared: {},
@@ -41,7 +46,7 @@ const reducer = (state = initialState, action) => {
       console.log('DISPATCH: ', action)
       const { consumerChainId, joinName, sharedTokens } = action.payload
 
-      const profile = state.getIn(['profile'])
+      const profile = state.getIn(PATHS.PRIVATE_PROFILE)
 
       nextState = makeProfileShareable(nextState, {
         consumerChainId,
@@ -50,14 +55,14 @@ const reducer = (state = initialState, action) => {
         sharedTokens
       })
 
-      const provideAction = utils.startProvideState({
+      const provideAction = startProvideState({
         consumer: consumerChainId,
-        statePath: ['shared', consumerChainId, 'sharedProfile'],
+        statePath: [...PATHS.SHARED_ROOT, consumerChainId, SHARED_PROFILE],
         joinName
       })
 
       console.log('REDISPATCH: ', provideAction)
-      nextState = utils.redispatch(nextState, provideAction)
+      nextState = redispatch(nextState, provideAction)
 
       return nextState
     }
@@ -71,11 +76,20 @@ const reducer = (state = initialState, action) => {
       return removeSharedProfile(state, consumerChainId)
     }
 
+    case actionTypes.RESET_PROFILE: {
+      console.log('DISPATCH: ', action)
+
+      // This removes the data that would be shared
+      nextState = resetSharedProfiles(nextState)
+      nextState = resetProfile(nextState)
+      return nextState
+    }
+
     case actionTypes.START_AUTHENTICATION: {
       console.log('DISPATCH: ', action)
       const { oAuthProvider, requestId, timestamp } = action.payload
 
-      nextState = nextState.setIn(['authenticationRequests', requestId], {
+      nextState = nextState.setIn([...PATHS.AUTH_REQUESTS, requestId], {
         oAuthProvider,
         timestamp
       })
@@ -86,10 +100,11 @@ const reducer = (state = initialState, action) => {
       console.log('DISPATCH: ', action)
       const { requestId } = action.payload
 
-      const request = state.getIn(['authenticationRequests', requestId])
+      const request = state.getIn([...PATHS.AUTH_REQUESTS, requestId])
 
       if (!request) {
-        throw new Error('You did not originate this request')
+        console.log(`Request ${requestId} not found.`)
+        return state
       }
 
       nextState = removeAuthenticationRequest(nextState, requestId)
@@ -101,21 +116,30 @@ const reducer = (state = initialState, action) => {
 
       const { requestId, providerChainId, tokenName, joinName } = action.payload
 
-      const request = state.getIn(['authenticationRequests', requestId])
-
+      const request = state.getIn([...PATHS.AUTH_REQUESTS, requestId])
       if (!request) {
-        throw new Error('You did not originate this request')
+        console.log(`Request ${requestId} not found.`)
+        return state
       }
-      // TODO: Check for stale requests
 
-      const consumeAction = utils.startConsumeState({
-        provider: providerChainId,
-        mount: ['profile', tokenName],
+      const existingJoin = findExistingJoin(state, {
+        providerChainId,
         joinName
       })
 
-      console.log('REDISPATCH: ', consumeAction)
-      nextState = utils.redispatch(nextState, consumeAction)
+      if (existingJoin) {
+        console.log(`Join ${existingJoin.joinName} already configured.`)
+      } else {
+        const consumeAction = startConsumeState({
+          provider: providerChainId,
+          mount: [...PATHS.PRIVATE_PROFILE, tokenName],
+          joinName
+        })
+
+        console.log('REDISPATCH: ', consumeAction)
+        nextState = redispatch(nextState, consumeAction)
+      }
+
       nextState = removeAuthenticationRequest(nextState, requestId)
       return nextState
     }
@@ -125,44 +149,66 @@ const reducer = (state = initialState, action) => {
   }
 }
 
+const findExistingJoin = (state, { providerChainId, joinName }) => {
+  const joinConsumers = state.getIn(PATHS.CONSUMING, [])
+  return joinConsumers.find(
+    join => join.provider === providerChainId && join.joinName === joinName
+  )
+}
+
 const updateProfile = (state, { alias, name, email }) => {
-  const current = state.getIn(['profile'], Immutable.from({}))
-  const updated = current.merge({
+  const tokensToReplace = removeEmptyProperties({
     alias,
     name,
     email
   })
-  return state
-    .setIn(['profile'], updated)
-    .setIn(['chainMetadata', 'name'], alias || 'anonymous user')
+
+  return mergeAtPath(state, PATHS.PRIVATE_PROFILE, tokensToReplace, {})
+}
+
+const removeEmptyProperties = payload =>
+  Object.entries(payload).reduce(
+    (cleaned, [token, value]) =>
+      value ? { ...cleaned, [token]: value } : cleaned,
+    {}
+  )
+
+const mergeAtPath = (state, path, value, options = { deep: true }) => {
+  const currentValue = state.getIn(path, Immutable.from({}))
+  const newValue = currentValue.merge(value, options)
+  return state.setIn(path, newValue)
 }
 
 const makeProfileShareable = (
   state,
   { consumerChainId, joinName, profile, sharedTokens }
 ) =>
-  state.setIn(['shared', consumerChainId], {
+  state.setIn([...PATHS.SHARED_ROOT, consumerChainId], {
     sharedTokens,
     sharedProfile: filterTokens(profile, sharedTokens),
     joinName
   })
 
-const filterTokens = (profile, sharedTokens) =>
-  sharedTokens.reduce(
-    (sharedProfile, tokenName) => ({
-      ...sharedProfile,
+const filterTokens = (profile, tokenNames) =>
+  tokenNames.reduce(
+    (newProfile, tokenName) => ({
+      ...newProfile,
       [tokenName]: profile[tokenName]
     }),
     {}
   )
 
 const removeSharedProfile = (state, consumerChainId) =>
-  state.updateIn(['shared'], Immutable.without, consumerChainId)
+  state.updateIn([PATHS.SHARED_ROOT], Immutable.without, consumerChainId)
 
 const updateSharedProfiles = (state, profile) =>
   Object.keys(state.shared || {}).reduce(
     (nextState, chainId) =>
-      nextState.updateIn(['shared', chainId], updateSharedProfile, profile),
+      nextState.updateIn(
+        [...PATHS.SHARED_ROOT, chainId],
+        updateSharedProfile,
+        profile
+      ),
     state
   )
 
@@ -172,7 +218,35 @@ const updateSharedProfile = (current, profile) => ({
 })
 
 const removeAuthenticationRequest = (state, requestId) =>
-  state.updateIn(['authenticationRequests'], Immutable.without, requestId)
+  state.updateIn([...PATHS.AUTH_REQUESTS], Immutable.without, requestId)
+
+const resetProfile = state =>
+  state.setIn(PATHS.PRIVATE_PROFILE, {
+    ...initialState.getIn(PATHS.PRIVATE_PROFILE),
+    ...filterThirdPartyTokens(state, state.getIn(PATHS.PRIVATE_PROFILE))
+  })
+
+const filterThirdPartyTokens = (state, profile) =>
+  Object.entries(profile).reduce(
+    (filtered, [tokenName, value]) =>
+      isThirdPartyToken(state, tokenName)
+        ? { ...filtered, [tokenName]: value }
+        : filtered,
+    {}
+  )
+
+const isThirdPartyToken = (state, tokenName) => {
+  const path = [...PATHS.PRIVATE_PROFILE, tokenName]
+  const consuming = state.getIn(PATHS.CONSUMING, [])
+  return consuming.some(
+    join =>
+      path.length === join.mount.length &&
+      path.every((value, i) => value === join.mount[i])
+  )
+}
+
+const resetSharedProfiles = state =>
+  state.setIn(PATHS.SHARED_ROOT, initialState.getIn(PATHS.SHARED_ROOT))
 
 module.exports = {
   actionTypes,

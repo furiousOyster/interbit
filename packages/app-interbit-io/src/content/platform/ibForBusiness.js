@@ -20,12 +20,12 @@ export default {
   headerImage: businessHeader,
   title: 'Interbit for business',
   intro: {
-    content: `Interbit is a different kind of platform. Interbit\u2019s unique chain joining technology allows you to build blockchain apps with the privacy, speed, and scalability required for enterprise business.`,
+    content: `Build blockchain apps with the privacy, speed, and scalability required for enterprise businesses.`,
     cards: [
       {
         title: 'Privacy and scalability',
         content:
-          'Joining blockchains means applications are easier to integrate and can be designed with purpose-built chains that perform specific tasks at scale.',
+          'Chain joining is unique to Interbit. Chain joining delivers privacy by separating chains and delivers scale by joining them.',
         image: iconChainJoin
       },
       {
@@ -96,8 +96,6 @@ Unlike the monolithic public blockchains that slow down (the time to reach conse
   quoteETH: {
     content:
       'Public chains have transaction confirmation times ranging from 15 seconds to hours.',
-    author: 'ETH Gas Station',
-    publication: 'https://ethgasstation.info/index.php',
     image: iconLink,
     callToActions: [
       {

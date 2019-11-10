@@ -1,15 +1,11 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Row, Col } from 'react-bootstrap'
-import { Markdown, LinkBarSlack, Divider } from 'lib-react-interbit'
+import { Markdown } from 'interbit-ui-components'
 
-import DeveloperNavigation from '../../components/DeveloperNavigation'
-import getInterbitServices from '../../redux/getInterbitServices'
-import urls from '../../constants/urls'
 import layout from '../../constants/layout'
 
 const mapStateToProps = state => ({
-  interbitServices: getInterbitServices(state),
   linkBarContent: state.content.linkBars,
   ...state.content.developers
 })
@@ -20,7 +16,7 @@ class DevelopersResources extends Component {
     const { resources } = this.props
     const colLayout = layout.colLayout.developers
 
-    const resourcesContent = (
+    return (
       <div className="ibweb-page dev-resources">
         <Row>
           <Col {...colLayout}>
@@ -29,7 +25,7 @@ class DevelopersResources extends Component {
           </Col>
         </Row>
 
-        <div className="sections">
+        <div className="sections ibweb-mg-xx-lg">
           {resources.sections.map(s => (
             <Row key={s.title} className="ibweb-mg-md">
               <Col {...colLayout}>
@@ -39,7 +35,7 @@ class DevelopersResources extends Component {
                 )}
                 {s.callToActions.map(a => (
                   <p key={a.to}>
-                    <a href={a.to} target="_blank">
+                    <a href={a.to} target="_blank" rel="noopener noreferrer">
                       {a.to}
                     </a>
                   </p>
@@ -48,18 +44,8 @@ class DevelopersResources extends Component {
             </Row>
           ))}
         </div>
-
-        <Divider />
-
-        <Row className="ibweb-mg-xx-lg">
-          <Col {...colLayout}>
-            <LinkBarSlack to={urls.SUPPORT_SLACK} />
-          </Col>
-        </Row>
       </div>
     )
-
-    return <DeveloperNavigation {...this.props} component={resourcesContent} />
   }
 }
 

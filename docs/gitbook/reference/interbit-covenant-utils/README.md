@@ -1,2 +1,0 @@
-# Interbit Covenant Utils
-

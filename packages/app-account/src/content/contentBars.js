@@ -18,7 +18,7 @@ There is no guarantee of data preservation, uptime, stability, or security at th
   appHosting: {
     title: 'Hosting',
     content:
-      'Description of the app. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor.',
+      'Simple, hassle-free hosting for your development projects. Host on Interbit or with other providers.',
     image: iconHosting,
     callToAction: {
       text: 'Coming soon...'
@@ -36,6 +36,7 @@ There is no guarantee of data preservation, uptime, stability, or security at th
   },
   gitHubCreateAccount: {
     title: 'GitHub',
+    id: 'ib-test-github-create',
     image: iconGitHub,
     content: 'Authenticate with GitHub to create your account.',
     error: 'Error connecting to GitHub. Please try again.',
@@ -43,6 +44,7 @@ There is no guarantee of data preservation, uptime, stability, or security at th
   },
   gitHubSignIn: {
     title: 'GitHub',
+    id: 'ib-test-github-signin',
     image: iconGitHub,
     content: 'Authenticate with GitHub to sign in to your account.',
     error: 'Error connecting to GitHub. Please try again.',

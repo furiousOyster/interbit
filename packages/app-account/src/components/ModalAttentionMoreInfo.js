@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { IconButton, Markdown, ModalWrapper } from 'lib-react-interbit'
+import { IconButton, Markdown, ModalWrapper } from 'interbit-ui-components'
 
 import modalNames from '../constants/modalNames'
 
@@ -24,7 +24,7 @@ export default class ModalAttentionMoreInfo extends Component {
     const footer = (
       <IconButton
         text="Close"
-        onClick={() => {
+        clickHandler={() => {
           toggleModal(modalNames.ATTENTION_MORE_INFO_MODAL_NAME)
         }}
       />
@@ -36,7 +36,7 @@ export default class ModalAttentionMoreInfo extends Component {
         body={body}
         footer={footer}
         show={show}
-        className="modal-attention"
+        className="modal-attention-more-info"
       />
     )
   }

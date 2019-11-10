@@ -6,21 +6,12 @@ import platformFeatures from './platformFeatures'
 import resources from './resources'
 import support from './support'
 
-import iconChat from '../../assets/icons/iconChat.svg'
 import iconDownload from '../../assets/icons/iconDownload.svg'
 import iconPlatformFeatures from '../../assets/icons/iconPlatformFeatures.svg'
-import iconStartingBlock from '../../assets/icons/iconStartingBlock.svg'
 
 // TODO: move nav out to navigation constants
 export default {
   launchPads: [
-    {
-      title: 'Product Roadmap',
-      text:
-        'See what platform features we have planned to help you build better apps, faster.',
-      image: iconStartingBlock,
-      to: constants.paths.PLATFORM_ROADMAP
-    },
     {
       title: 'Platform Features',
       text:
@@ -29,21 +20,17 @@ export default {
       to: constants.paths.DEVELOPERS_PLATFORM_FEATURES
     },
     {
-      title: 'Support',
-      text:
-        'Join our Slack community for technical assistance, discussions, and updates.',
-      image: iconChat,
-      to: constants.urls.SUPPORT_SLACK
-    },
-    {
       title: 'Get the SDK',
       text:
         'Download the Interbit SDK and get started building blockchain applications within minutes.',
       image: iconDownload,
-      to: constants.urls.GITHUB_IB
+      to: constants.urls.GITHUB_IB,
+      clickHandler: () => {
+        window.ga(...constants.ga.CLICK_GET_SDK)
+      }
     }
   ],
-  sideBar: [
+  sidebar: [
     {
       title: 'Start Here',
       items: [

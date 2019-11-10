@@ -1,158 +1,70 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Grid, Row, Col } from 'react-bootstrap'
 import { connect } from 'react-redux'
-import { Route, Switch } from 'react-router-dom'
-import { Navigation, Footer } from 'lib-react-interbit'
+import { withRouter, Route, Switch } from 'react-router-dom'
+import { interbitRedux } from 'interbit-ui-tools'
 
-import { selectors } from 'interbit-middleware'
+import PageContainer from './containers/PageContainer'
+import PageContainerNoNav from './containers/PageContainerNoNav'
 
-import Account from './containers/Account'
-import Home from './containers/Home'
-import NotFoundPage from './containers/NotFoundPage'
-import InteractiveChains from './containers/InteractiveChains'
-import ExploreChain from './containers/ExploreChain'
-import ChainConnect from './containers/ChainConnect'
-import CreateAccount from './containers/CreateAcount'
-
-import LogoAccount from './components/LogoAccounts'
-import { PRIVATE } from './constants/chainAliases'
+import CHAIN_ALIASES from './constants/chainAliases'
 import paths from './constants/paths'
-import urls from './constants/urls'
+import './config/amplitude'
 import './css/App.css'
 
+const { selectors } = interbitRedux
+
 const mapStateToProps = state => {
-  const chainAlias = PRIVATE
-  const userName = selectors.isChainLoaded(state, { chainAlias })
-    ? selectors.getChain(state, { chainAlias }).getIn(['profie', 'name'])
-    : undefined
+  const chainAlias = CHAIN_ALIASES.PRIVATE
+  const isChainLoaded = selectors.isChainLoaded(state, { chainAlias })
+
+  const chainState = isChainLoaded
+    ? selectors.getChain(state, { chainAlias })
+    : {}
+  const isLoggedIn = isChainLoaded && !!chainState.profile['gitHub-identity']
+  const gitHubUsername =
+    isLoggedIn && chainState.profile['gitHub-identity'].login
 
   return {
-    userName,
-    // TODO: Require authentication
-    isLoggedIn: true
+    userName: gitHubUsername || '',
+    isChainLoaded,
+    isLoggedIn
   }
 }
 
 export class App extends Component {
   static propTypes = {
     userName: PropTypes.string,
+    isChainLoaded: PropTypes.bool,
     isLoggedIn: PropTypes.bool
   }
 
   static defaultProps = {
-    userName: 'anonymous user',
+    userName: '',
+    isChainLoaded: false,
     isLoggedIn: false
   }
 
   render() {
-    const { userName, isLoggedIn } = this.props
-
-    const headerNav = [
-      {
-        title: 'My Account',
-        eventKey: 'account'
-      },
-      {
-        title: 'Block Explorer',
-        eventKey: 'explore'
-      }
-    ]
-
-    const headerNavLoggedOut = [
-      {
-        title: 'Create Account / Sign-in',
-        eventKey: 'create-account'
-      }
-    ]
-
-    const footerNav = [
-      {
-        title: 'Accounts',
-        items: [
-          {
-            text: 'Your Account',
-            to: paths.ACCOUNT
-          },
-          {
-            text: 'Support',
-            to: urls.APP_IB_IO_DEVELOPERS_SUPPORT
-          }
-        ]
-      },
-      {
-        title: 'Services',
-        items: [
-          {
-            text: 'Accounts',
-            to: paths.HOME
-          },
-          {
-            text: 'Store',
-            to: urls.APP_STORE
-          }
-        ]
-      }
-    ]
-
-    const footerBottomLinks = [
-      {
-        text: 'Privacy Policy',
-        to: urls.APP_IB_IO_POLICY_PRIVACY
-      },
-      {
-        text: 'Terms of Use',
-        to: urls.APP_IB_IO_POLICY_TOS
-      }
-    ]
+    const { isChainLoaded } = this.props
 
     return (
       <div className="App ibweb app-account">
-        <div className="ibweb-navbar-container">
-          <Grid>
-            <Row>
-              <Col lg={10} md={9} sm={12}>
-                <Navigation
-                  className="nav-main-menu"
-                  logo={<LogoAccount />}
-                  navItems={isLoggedIn ? headerNav : headerNavLoggedOut}
-                  username={userName}
-                />
-              </Col>
-            </Row>
-          </Grid>
-        </div>
-
-        <Grid>
+        {isChainLoaded ? (
           <Switch>
-            <Route exact path={paths.HOME} component={Home} />
             <Route
-              exact
-              path="/account/oauth/:oAuthProvider"
-              component={Account}
+              path={paths.CONNECT}
+              render={() => <PageContainerNoNav {...this.props} />}
+              isLoggedIn
             />
-            <Route path={paths.ACCOUNT} component={Account} />
-            <Route path={paths.CONNECT} component={ChainConnect} />
-            <Route exact path={paths.CHAINS} component={InteractiveChains} />
-            <Route path={paths.BLOCK_EXPLORER} component={ExploreChain} />
-            <Route
-              exact
-              path={paths.CREATE_ACCOUNT}
-              component={CreateAccount}
-            />
-            <Route component={NotFoundPage} />
+            <Route render={() => <PageContainer {...this.props} />} />
           </Switch>
-
-          <Footer
-            sections={footerNav}
-            isInline
-            logoUrl={urls.APP_IB_IO}
-            bottomLinks={footerBottomLinks}
-          />
-        </Grid>
+        ) : (
+          <Route render={() => <PageContainerNoNav {...this.props} />} />
+        )}
       </div>
     )
   }
 }
 
-export default connect(mapStateToProps)(App)
+export default withRouter(connect(mapStateToProps)(App))
